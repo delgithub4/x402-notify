@@ -1,6 +1,7 @@
 from providers.email import EmailProvider
 from providers.sms import SMSProvider
 from providers.push import PushProvider
+from services.template_service import TemplateService
 
 class NotificationService:
 
@@ -12,6 +13,8 @@ class NotificationService:
 
         self.push = PushProvider()
 
+        self.template = TemplateService()
+
     def send(
         self,
         provider,
@@ -20,27 +23,45 @@ class NotificationService:
         message=""
     ):
 
-    if provider == "email":
+    def send_welcome(
+        self,
+        recipient,
+        name
+    ):
 
+        message = self.template.welcome(name)
+    
         return self.email.send(
+    
             recipient,
-            subject,
+    
+            "Welcome!",
+    
             message
+    
         )
-
-    if provider == "sms":
-
-        return self.sms.send(
-            recipient,
-            message
-        )
-
-    if provider == "push":
-
-        return self.push.send(
-            recipient,
-            message
-        )
+    
+        if provider == "email":
+    
+            return self.email.send(
+                recipient,
+                subject,
+                message
+            )
+    
+        if provider == "sms":
+    
+            return self.sms.send(
+                recipient,
+                message
+            )
+    
+        if provider == "push":
+    
+            return self.push.send(
+                recipient,
+                message
+            )
 
     return {
 
