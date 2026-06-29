@@ -1,19 +1,35 @@
 from fastapi import FastAPI
 
+from core.config import settings
+from core.exceptions import register_exception_handlers
+from core.lifespan import lifespan
+from core.middleware import register_middleware
+
 from routes.notify import router as notify_router
 
+
 app = FastAPI(
-    title="x402-notify",
-    version="1.0.0"
+    title=settings.APP_NAME,
+    description=settings.SERVICE_DESCRIPTION,
+    version=settings.APP_VERSION,
+    debug=settings.DEBUG,
+    lifespan=lifespan,
 )
 
-app.include_router(notify_router)
+register_middleware(app)
+register_exception_handlers(app)
+
+app.include_router(
+    notify_router,
+    prefix=settings.API_PREFIX,
+)
 
 
-@app.get("/")
-def home():
-
+@app.get("/", tags=["Root"])
+async def root():
     return {
-        "service": "x402-notify",
-        "status": "running"
+        "service": settings.APP_NAME,
+        "version": settings.APP_VERSION,
+        "environment": settings.ENVIRONMENT,
+        "status": "running",
     }
